@@ -9,8 +9,12 @@ import java.util.ArrayList;
 public class CategoryService {
     ArrayList<Category> categories = new ArrayList<>();
 
-    public void addCategory(Category category){
+    public boolean addCategory(Category category){
+        if(category == null){
+            return false;
+        }
         categories.add(category);
+        return true;
     }
 
     public ArrayList<Category> getCategories(){

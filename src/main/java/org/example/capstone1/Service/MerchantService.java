@@ -9,8 +9,12 @@ import java.util.ArrayList;
 public class MerchantService {
     ArrayList<Merchant> merchants = new ArrayList<>();
 
-    public void addMerchant(Merchant merchant){
+    public boolean addMerchant(Merchant merchant){
+        if(merchant == null){
+            return false;
+        }
         merchants.add(merchant);
+        return true;
     }
 
     public ArrayList<Merchant> getMerchants(){

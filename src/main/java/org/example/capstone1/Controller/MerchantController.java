@@ -16,13 +16,20 @@ public class MerchantController {
 
     @GetMapping("/get")
     public ResponseEntity<?> getMerchants(){
-        return ResponseEntity.status(200).body(merchantService.getMerchants());
+        if(merchantService.getMerchants().isEmpty()){
+            return ResponseEntity.status(400).body(new ApiResponse("No merchants found"));
+        }
+        return ResponseEntity.status(200)
+                .body(merchantService.getMerchants());
     }
 
     @PostMapping("/add")
     public ResponseEntity<?> addMerchant(@RequestBody @Valid Merchant merchant){
-        merchantService.addMerchant(merchant);
-        return ResponseEntity.status(200).body(new ApiResponse("merchant added"));
+        boolean added = merchantService.addMerchant(merchant);
+        if(added){
+            return ResponseEntity.status(200).body(new ApiResponse("merchant added"));
+        }
+        return ResponseEntity.status(400).body(new ApiResponse("merchant can not be added"));
     }
 
     @PutMapping("/update/{id}")

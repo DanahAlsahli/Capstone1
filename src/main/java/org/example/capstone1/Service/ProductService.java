@@ -9,8 +9,19 @@ import java.util.ArrayList;
 public class ProductService {
     ArrayList<Product> products = new ArrayList<>();
 
-    public void addProduct(Product product){
+    private final MerchantService merchantService;
+
+    public ProductService(MerchantService merchantService) {
+        this.merchantService = merchantService;
+    }
+
+    public boolean addProduct(Product product){
+        if(product == null){
+            return false;
+        }
+
         products.add(product);
+        return true;
     }
 
     public ArrayList<Product> getProducts(){
@@ -46,15 +57,28 @@ public class ProductService {
         return null;
     }
 
-    public boolean updatePrice(int productId, double newPrice) {
+    public String updatePrice(int productId, int merchantId, double newPrice) {
         Product product = searchProductById(productId);
 
-        if (product != null && newPrice > 0) {
-            product.setPrice(newPrice);
-            return true;
+        if(product == null){
+            return "product not found";
         }
+        boolean merchantExists = false;
 
-        return false;
+        for(int i = 0; i < merchantService.getMerchants().size(); i++){
+            if(merchantService.getMerchants().get(i).getId() == merchantId){
+                merchantExists = true;
+                break;
+            }
+        }
+        if(!merchantExists){
+            return "merchant not found";
+        }
+        if(newPrice <= 0){
+            return "price must be positive";
+        }
+        product.setPrice(newPrice);
+        return "price updated";
     }
 
     public ArrayList<Product> getProductsLessThanPrice(double price) {
@@ -65,13 +89,11 @@ public class ProductService {
                 result.add(product);
             }
         }
-
         return result;
     }
 
     public Product recommendProduct(double balance) {
         Product recommendedProduct = null;
-
         for (Product product : products) {
             if (product.getPrice() <= balance) {
                 if (recommendedProduct == null ||
@@ -80,20 +102,17 @@ public class ProductService {
                 }
             }
         }
-
         return recommendedProduct;
     }
 
     public Product getBestDeal() {
         Product bestProduct = null;
-
         for (Product product : products) {
             if (bestProduct == null ||
                     product.getPrice() < bestProduct.getPrice()) {
                 bestProduct = product;
             }
         }
-
         return bestProduct;
     }
 

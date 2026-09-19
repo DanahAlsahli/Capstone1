@@ -16,13 +16,20 @@ public class CategoryController {
 
     @GetMapping("/get")
     public ResponseEntity<?> getCategories(){
+        if (categoryService.getCategories().isEmpty()) {
+            return ResponseEntity.status(400).body(new ApiResponse("No categories found"));
+        }
         return ResponseEntity.status(200).body(categoryService.getCategories());
     }
 
     @PostMapping("/add")
     public ResponseEntity<?> addCategory(@RequestBody @Valid Category category){
-        categoryService.addCategory(category);
-        return ResponseEntity.status(200).body(new ApiResponse("Category added"));
+        boolean added = categoryService.addCategory(category);
+
+        if(added){
+            return ResponseEntity.status(200).body(new ApiResponse("Category added"));
+        }
+        return ResponseEntity.status(400).body(new ApiResponse("Category can not be added"));
     }
 
     @PutMapping("/update/{id}")

@@ -17,26 +17,32 @@ public class MerchantStockController {
 
     @GetMapping("/get")
     public ResponseEntity<?> getMerchantStocks() {
-        return ResponseEntity.status(200).body(merchantStockService.getMerchantStocks());
+        if (merchantStockService.getMerchantStocks().isEmpty()) {
+            return ResponseEntity.status(400).body(new ApiResponse("No merchant stocks found"));
+        }
+        return ResponseEntity.status(200)
+                .body(merchantStockService.getMerchantStocks());
     }
 
     @PostMapping("/add")
     public ResponseEntity<?> addMerchantStock(@RequestBody @Valid MerchantStock merchantStock) {
-        merchantStockService.addMerchantStock(merchantStock);
-        return ResponseEntity.status(200).body(new ApiResponse("merchant stock added"));
+        boolean added = merchantStockService.addMerchantStock(merchantStock);
+
+        if (added) {
+            return ResponseEntity.status(200).body(new ApiResponse("merchant stock added"));
+        }
+        return ResponseEntity.status(400).body(new ApiResponse("merchant stock can not be added"));
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateMerchantStock(
             @PathVariable int id,
             @RequestBody @Valid MerchantStock merchantStock) {
-
         boolean updated = merchantStockService.updateMerchantStock(id, merchantStock);
 
         if (updated) {
             return ResponseEntity.status(200).body(new ApiResponse("merchant stock updated"));
         }
-
         return ResponseEntity.status(400).body(new ApiResponse("merchant stock not found"));
     }
 
@@ -48,35 +54,38 @@ public class MerchantStockController {
         if (deleted) {
             return ResponseEntity.status(200).body(new ApiResponse("merchant stock deleted"));
         }
-
         return ResponseEntity.status(400).body(new ApiResponse("merchant stock not found"));
     }
 
     @PutMapping("/add-stock/{productId}/{merchantId}/{amount}")
-    public ResponseEntity<?> addStock(
-            @PathVariable int productId,
-            @PathVariable int merchantId,
-            @PathVariable int amount) {
+    public ResponseEntity<?> addStock(@PathVariable int productId, @PathVariable int merchantId, @PathVariable int amount) {
+        String result = merchantStockService.addStock(productId, merchantId, amount);
 
-        boolean added = merchantStockService.addStock(productId, merchantId, amount);
-
-        if (added) {
-            return ResponseEntity.status(200).body(new ApiResponse("stock added"));
+        if (result.equals("stock added")) {
+            return ResponseEntity.status(200)
+                    .body(new ApiResponse(result));
         }
-
-        return ResponseEntity.status(400).body(new ApiResponse("merchant stock not found"));
+        return ResponseEntity.status(400)
+                .body(new ApiResponse(result));
     }
 
     @GetMapping("/merchant/{merchantId}")
     public ResponseEntity<?> getMerchantStocksByMerchantId(@PathVariable int merchantId) {
 
+        if (merchantStockService.getMerchantStocksByMerchantId(merchantId).isEmpty()) {
+            return ResponseEntity.status(400)
+                    .body(new ApiResponse("No merchant stocks found"));
+        }
         return ResponseEntity.status(200)
                 .body(merchantStockService.getMerchantStocksByMerchantId(merchantId));
     }
 
     @GetMapping("/low-stock")
     public ResponseEntity<?> getLowStock() {
-
+        if (merchantStockService.getLowStock().isEmpty()) {
+            return ResponseEntity.status(400)
+                    .body(new ApiResponse("No low stock products found"));
+        }
         return ResponseEntity.status(200)
                 .body(merchantStockService.getLowStock());
     }
